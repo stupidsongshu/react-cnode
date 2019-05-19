@@ -1,5 +1,5 @@
 import React from 'react'
-import { hot } from 'react-hot-loader'
+import { hot } from 'react-hot-loader' // eslint-disable-line
 
 // class App extends React.Component {
 //   render() {
