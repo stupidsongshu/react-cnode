@@ -11,8 +11,10 @@
     "build:client": "webpack --config build/webpack.config.client.js",
     "build:server": "webpack --config build/webpack.config.server.js",
     "build": "npm run clear && npm run build:client && npm run build:server",
-    "lint": "eslint --ext .js --ext .jsx client/",
-    "precommit": "npm run lint"
+    "lint": "eslint --ext .js --ext .jsx client/"
+  },
+  "husky": {
+    "pre-commit": "npm run lint"
   },
   "author": "",
   "license": "ISC",
