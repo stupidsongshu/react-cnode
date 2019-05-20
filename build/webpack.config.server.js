@@ -1,6 +1,8 @@
 const path = require('path')
+const merge = require('webpack-merge')
+const baseConfig = require('./webpack.config.base')
 
-const config = {
+const config = merge(baseConfig, {
   target: 'node',
   entry: {
     app: path.join(__dirname, '../client/server-entry.js')
@@ -11,21 +13,21 @@ const config = {
     publicPath: '/public',
     libraryTarget: 'commonjs2'
   },
-  module: {
-    rules: [
-      {
-        test: /.jsx$/,
-        loader: 'babel-loader'
-      },
-      {
-        test: /.js$/,
-        loader: 'babel-loader',
-        exclude: [
-          path.join(__dirname, '../node_modules')
-        ]
-      }
-    ]
-  }
-}
+  // module: {
+  //   rules: [
+  //     {
+  //       test: /.jsx$/,
+  //       loader: 'babel-loader'
+  //     },
+  //     {
+  //       test: /.js$/,
+  //       loader: 'babel-loader',
+  //       exclude: [
+  //         path.join(__dirname, '../node_modules')
+  //       ]
+  //     }
+  //   ]
+  // }
+})
 
 module.exports = config

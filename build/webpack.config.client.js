@@ -1,10 +1,12 @@
 const path = require('path')
 const HTMLWebpackPlugin = require('html-webpack-plugin')
+const merge = require('webpack-merge')
+const baseConfig = require('./webpack.config.base')
 
 const isDev = process.env.NODE_ENV === 'development'
 console.log('isDev************', isDev)
 
-const config = {
+const config = merge(baseConfig, {
   entry: {
     app: path.join(__dirname, '../client/app.js')
   },
@@ -14,35 +16,35 @@ const config = {
     // 将 publicPath 设为 /public/ (注意最后要加上斜线)是为了方便后面服务端渲染进行判断返回静态资源
     publicPath: '/public/'
   },
-  module: {
-    rules: [
-      {
-        test: /.(js|jsx)$/,
-        loader: 'eslint-loader',
-        enforce: 'pre',
-        exclude: [
-          path.resolve(__dirname, '../node_modules')
-        ]
-      },
-      {
-        test: /.jsx$/,
-        loader: 'babel-loader'
-      },
-      {
-        test: /.js$/,
-        loader: 'babel-loader',
-        exclude: [
-          path.join(__dirname, '../node_modules')
-        ]
-      }
-    ]
-  },
+  // module: {
+  //   rules: [
+  //     {
+  //       test: /.(js|jsx)$/,
+  //       loader: 'eslint-loader',
+  //       enforce: 'pre',
+  //       exclude: [
+  //         path.resolve(__dirname, '../node_modules')
+  //       ]
+  //     },
+  //     {
+  //       test: /.jsx$/,
+  //       loader: 'babel-loader'
+  //     },
+  //     {
+  //       test: /.js$/,
+  //       loader: 'babel-loader',
+  //       exclude: [
+  //         path.join(__dirname, '../node_modules')
+  //       ]
+  //     }
+  //   ]
+  // },
   plugins: [
     new HTMLWebpackPlugin({
       template: path.join(__dirname, '../client/template.html')
     })
   ]
-}
+})
 
 if (isDev) {
   config.devServer = {
