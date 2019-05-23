@@ -17,10 +17,13 @@ const getTemplate = () => {
   return new Promise((resolve, reject) => {
     axios.get('http://127.0.0.1:8888/public/index.html')
       .then(res => {
-        // console.log('开发环境获取模板成功', res)
+        console.log('开发环境获取模板成功1')
         resolve(res.data)
       })
-      .catch(reject)
+      .catch(err => {
+        console.log('开发环境获取模板失败1')
+        reject(err)
+      })
   })
 }
 
@@ -87,15 +90,15 @@ compiler.watch({}, (err, stats) => {
     // serverConfig.output.publicPath,
     serverConfig.output.filename
   )
-  console.log('bundlePath------', bundlePath)
+  console.log('bundlePath------:', bundlePath)
   // readFileSync 默认返回 buffer， 加上第二个参数 utf-8 返回字符串
   const serverBundleStr = mfs.readFileSync(bundlePath, 'utf-8')
   // console.log('serverBundleStr---------', serverBundleStr)
   // 从server-entry.js里面读出的是js字符串，以下为处理成可执行代码的hack方法
   const m = new Module()
-  // console.log(m)
+  // console.log('m1---------------', m)
   m._compile(serverBundleStr, serverConfig.output.filename)
-  // console.log(m)
+  // console.log('m2----------------', m)
   serverBundle = m.exports.default
   console.log('serverBundle----:', serverBundle)
 })
@@ -106,12 +109,20 @@ module.exports = (app) => {
     target: 'http://127.0.0.1:8888'
   }))
 
+  // if (!serverBundle) {
+  //   console.log('please wait a little')
+  //   return
+  // }
+
   app.get('*', (req, res) => {
     getTemplate().then(template => {
-      // console.log('开发环境获取模板成功', template)
+      console.log('开发环境获取模板成功:', template)
       let appStr = ReactDOMServer.renderToString(serverBundle)
       console.log('appStr----', appStr)
       res.send(template.replace('<!-- app -->', appStr))
+    }).catch(err => {
+      console.error('开发环境获取模板后失败:', err)
+      res.status(500).send(err.toString())
     })
   })
 }

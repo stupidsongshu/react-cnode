@@ -10,8 +10,11 @@ const config = merge(baseConfig, {
   output: {
     filename: 'server-entry.js',
     path: path.join(__dirname, '../dist'),
-    publicPath: '/public',
+    publicPath: '/public/',
     libraryTarget: 'commonjs2'
+  },
+  resolve: {
+    extensions: ['.js', '.jsx']
   },
   // module: {
   //   rules: [
