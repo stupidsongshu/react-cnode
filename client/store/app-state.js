@@ -5,7 +5,7 @@ import {
   action,
 } from 'mobx'
 
-export class AppState {
+export default class AppState {
   @observable count = 0
 
   @observable name = 'squirrel'
@@ -23,8 +23,8 @@ export class AppState {
   }
 }
 
-const appState = new AppState()
+// const appState = new AppState()
 
-// autorun(() => console.log(appState.msg))
+// // autorun(() => console.log(appState.msg))
 
-export default appState
+// export default appState

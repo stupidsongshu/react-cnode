@@ -1,6 +1,7 @@
 const path = require('path')
 const HTMLWebpackPlugin = require('html-webpack-plugin')
 const merge = require('webpack-merge')
+// const webpack = require('webpack')
 const baseConfig = require('./webpack.config.base')
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -11,13 +12,7 @@ const config = merge(baseConfig, {
     app: path.join(__dirname, '../client/app.js')
   },
   output: {
-    filename: '[name].[hash].js',
-    path: path.join(__dirname, '../dist'),
-    // 将 publicPath 设为 /public/ (注意最后要加上斜线)是为了方便后面服务端渲染进行判断返回静态资源
-    publicPath: '/public/'
-  },
-  resolve: {
-    extensions: ['.js', '.jsx']
+    filename: '[name].[hash].js'
   },
   // module: {
   //   rules: [
@@ -50,6 +45,12 @@ const config = merge(baseConfig, {
 })
 
 if (isDev) {
+  config.entry = {
+    app: [
+      'react-hot-loader/patch',
+      path.join(__dirname, '../client/app.js')
+    ]
+  }
   config.devServer = {
     // open: true,
     host: '0.0.0.0', // 默认 localhost
@@ -66,8 +67,14 @@ if (isDev) {
     // 当使用 HTML5 History API 时，任意的 404 响应都可能需要被替代为 index.html。
     historyApiFallback: {
       index: '/public/index.html'
+    },
+    proxy: {
+      '/api': 'http://localhost:9999'
     }
   }
+  // config.plugins.push(
+  //   new webpack.HotModuleReplacementPlugin()
+  // )
 }
 
 module.exports = config

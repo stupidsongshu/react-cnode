@@ -1,14 +1,13 @@
 const axios = require('axios')
+const querystring = require('query-string')
 
 const baseUrl = 'https://cnodejs.org/api/v1'
 
 module.exports = (req, res, next) => {
   let path = req.path
-  let query = req.query
-  let body = req.body
   let user = req.session.user || {}
 
-  let needAccessToken = query.needAccessToken
+  let needAccessToken = req.query.needAccessToken
   if (needAccessToken && !user.accessToken) {
     res.status(401).send({
       success: false,
@@ -16,27 +15,30 @@ module.exports = (req, res, next) => {
     })
   }
 
+  const query = Object.assign({}, req.query, {
+    accesstoken: (needAccessToken && req.method === 'GET') ? user.accessToken : ''
+  })
   if (needAccessToken) delete query.needAccessToken
 
   axios({
     url: `${baseUrl}/${path}`,
     method: req.method,
     params: query,
-    data: body,
+    data: querystring.stringify(Object.assign({}, req.body, {
+      accesstoken: (needAccessToken && req.method === 'POST') ? user.accessToken : ''
+    })),
     header: {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
   }).then(response => {
-    let data = response.data
-    if (response.status === 200 && data.success) {
-      res.send(data)
+    if (response.status === 200) {
+      res.send(response.data)
+    } else {
+      res.status(response.status).send(response.data)
     }
   }).catch(err => {
     if (err.response) {
-      res.status(500).send({
-        success: false,
-        data: err.response
-      })
+      res.status(500).send(err.response.data)
     } else {
       res.status(500).send({
         success: false,

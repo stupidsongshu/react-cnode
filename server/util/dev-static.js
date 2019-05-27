@@ -4,10 +4,10 @@ const path = require('path')
 const MemoryFS = require('memory-fs')
 const ReactDOMServer = require('react-dom/server')
 const proxy = require('http-proxy-middleware')
+const bootstrapper = require('react-async-bootstrapper')
 
 const serverConfig = require('../../build/webpack.config.server')
 
-let serverBundle
 let Module = module.constructor
 
 /**
@@ -28,7 +28,7 @@ const getTemplate = () => {
 }
 
 // 开发环境使用 memory-fs 提高效率
-const mfs = new MemoryFS()
+const mfs = new MemoryFS
 
 /**
  * 导入的 webpack 函数需要传入一个 webpack 配置对象，
@@ -53,6 +53,7 @@ compiler.outputFileSystem = mfs
  * 一旦 webpack 检测到文件变更，就会重新执行编译。
  * 该方法返回一个 Watching 实例。
  */
+let serverBundle, createStoreMap
 compiler.watch({}, (err, stats) => {
   console.log('compiler watch start, because of the client webpack-dev-server compiled')
   /**
@@ -62,25 +63,27 @@ compiler.watch({}, (err, stats) => {
    * 2. 编译错误（缺失的 module，语法错误等）
    * 3. 编译警告
    */
-  if (err) {
-    console.error('compiler watch err:', err.stack || err)
-    if (err.details) {
-      console.error('compiler watch err.details:', err.details)
-    }
-    return
-  }
-  // 以 JSON 对象形式返回编译信息
-  // stats = stats.toJson()
-  // stats.errors.forEach(error => console.error(error))
-  // stats.warnings.forEach(warn => console.warn(warn))
+  // if (err) {
+  //   console.error('compiler watch err:', err.stack || err)
+  //   if (err.details) {
+  //     console.error('compiler watch err.details:', err.details)
+  //   }
+  //   return
+  // }
+  if (err) throw err
 
-  const info = stats.toJson();
-  if (stats.hasErrors()) {
-    console.error('stats.hasErrors:', info.errors);
-  }
-  if (stats.hasWarnings()) {
-    console.warn('stats.hasWarnings:', info.warnings);
-  }
+  // 以 JSON 对象形式返回编译信息
+  stats = stats.toJson()
+  stats.errors.forEach(error => console.error('stats error:', error))
+  stats.warnings.forEach(warn => console.warn('stats warn:', warn))
+
+  // const info = stats.toJson();
+  // if (stats.hasErrors()) {
+  //   console.error('stats.hasErrors:', info.errors);
+  // }
+  // if (stats.hasWarnings()) {
+  //   console.warn('stats.hasWarnings:', info.warnings);
+  // }
 
   // console.log('compiler.outputFileSystem---', compiler.outputFileSystem.data.Users.squirrel.repositories.react['react-cnode'])
 
@@ -100,6 +103,7 @@ compiler.watch({}, (err, stats) => {
   m._compile(serverBundleStr, serverConfig.output.filename)
   // console.log('m2----------------', m)
   serverBundle = m.exports.default
+  createStoreMap = m.exports.createStoreMap
   console.log('serverBundle----:', serverBundle)
 })
 
@@ -109,17 +113,32 @@ module.exports = (app) => {
     target: 'http://127.0.0.1:8888'
   }))
 
-  // if (!serverBundle) {
-  //   console.log('please wait a little')
-  //   return
-  // }
-
   app.get('*', (req, res) => {
+    // if (!serverBundle) {
+    //   return res.send('waiting for compile')
+    // }
+
     getTemplate().then(template => {
       console.log('开发环境获取模板成功:', template)
-      let appStr = ReactDOMServer.renderToString(serverBundle)
-      console.log('appStr----', appStr)
-      res.send(template.replace('<!-- app -->', appStr))
+      const stores = createStoreMap()
+      const routerContext = {}
+      const app = serverBundle(stores, routerContext, req.url)
+
+      bootstrapper(app).then(() => {
+        const content = ReactDOMServer.renderToString(app)
+        console.log('content----:', content)
+
+        // 服务端渲染处理重定向
+        if (routerContext.url) {
+          res.status(302).setHeader('Location', routerContext.url)
+          res.end()
+          return
+        }
+
+        console.log(stores.appState.count)
+
+        res.send(template.replace('<!-- app -->', content))
+      })
     }).catch(err => {
       console.error('开发环境获取模板后失败:', err)
       res.status(500).send(err.toString())

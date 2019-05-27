@@ -5,17 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-
     "clear": "rimraf dist",
-
     "dev:client": "cross-env NODE_ENV=development webpack-dev-server --config build/webpack.config.client.js",
-    "dev:server": "cross-env NODE_ENV=development node server/1.js",
-    "dev:server:nodemon": "nodemon server/1.js",
-
+    "dev:server": "cross-env NODE_ENV=development node server/server.js",
+    "dev:server:nodemon": "nodemon server/server.js",
     "build:client": "webpack --config build/webpack.config.client.js",
     "build:server": "webpack --config build/webpack.config.server.js",
     "build": "npm run clear && npm run build:client && npm run build:server",
-
     "lint": "eslint --ext .js --ext .jsx client/"
   },
   "husky": {
@@ -36,7 +32,9 @@
     "prop-types": "^15.7.2",
     "query-string": "^6.5.0",
     "react": "^16.8.6",
+    "react-async-bootstrapper": "^2.1.1",
     "react-dom": "^16.8.6",
+    "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0"
   },
   "devDependencies": {
@@ -64,10 +62,10 @@
     "husky": "^2.3.0",
     "memory-fs": "^0.4.1",
     "nodemon": "^1.19.0",
-    "react-hot-loader": "^4.8.6",
+    "react-hot-loader": "^4.8.8",
     "rimraf": "^2.6.3",
     "serve-favicon": "^2.5.0",
-    "webpack": "^4.31.0",
+    "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2",
     "webpack-dev-server": "^3.4.1",
     "webpack-merge": "^4.2.1"
