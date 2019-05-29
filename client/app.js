@@ -12,8 +12,10 @@ const root = document.getElementById('root')
 // ReactDOM.render(<App />, root)
 // ReactDOM.hydrate(<App />, root)
 
+const initialState = window.__INITIAL__STATE__ // eslint-disable-line
+
 ReactDOM.render(
-  <Provider appState={new AppState()}>
+  <Provider appState={new AppState(initialState.appState)}>
     <Router>
       <App />
     </Router>

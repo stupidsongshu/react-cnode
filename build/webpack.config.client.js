@@ -40,6 +40,10 @@ const config = merge(baseConfig, {
   plugins: [
     new HTMLWebpackPlugin({
       template: path.join(__dirname, '../client/template.html')
+    }),
+    new HTMLWebpackPlugin({
+      template: '!!ejs-compiled-loader!' + path.join(__dirname, '../client/server.template.ejs'),
+      filename: 'server.template.ejs'
     })
   ]
 })

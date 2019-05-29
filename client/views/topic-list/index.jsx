@@ -6,7 +6,6 @@ import AppState from '../../store/app-state'
 @inject('appState') @observer
 class TopicList extends React.Component {
   componentDidMount() {
-    // TODO
     setInterval(() => {
       this.props.appState.add()
     }, 1000)

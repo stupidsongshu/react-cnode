@@ -5,6 +5,8 @@ const MemoryFS = require('memory-fs')
 const ReactDOMServer = require('react-dom/server')
 const proxy = require('http-proxy-middleware')
 const bootstrapper = require('react-async-bootstrapper')
+const ejs = require('ejs')
+const serialize = require('serialize-javascript')
 
 const serverConfig = require('../../build/webpack.config.server')
 
@@ -15,7 +17,9 @@ let Module = module.constructor
  */
 const getTemplate = () => {
   return new Promise((resolve, reject) => {
-    axios.get('http://127.0.0.1:8888/public/index.html')
+    // const templateUrl = 'http://127.0.0.1:8888/public/index.html'
+    const templateUrl = 'http://127.0.0.1:8888/public/server.template.ejs'
+    axios.get(templateUrl)
       .then(res => {
         console.log('开发环境获取模板成功1')
         resolve(res.data)
@@ -104,8 +108,15 @@ compiler.watch({}, (err, stats) => {
   // console.log('m2----------------', m)
   serverBundle = m.exports.default
   createStoreMap = m.exports.createStoreMap
-  console.log('serverBundle----:', serverBundle)
+  // console.log('serverBundle----:', serverBundle)
 })
+
+const getStoreState = (stores) => {
+  return Object.keys(stores).reduce((result, storeName) => {
+    result[storeName] = stores[storeName].toJson()
+    return result
+  }, {})
+}
 
 module.exports = (app) => {
   // 静态资源代理
@@ -135,9 +146,17 @@ module.exports = (app) => {
           return
         }
 
+        const state = getStoreState(stores)
+
         console.log(stores.appState.count)
 
-        res.send(template.replace('<!-- app -->', content))
+        // res.send(template.replace('<!-- app -->', content))
+
+        const html = ejs.render(template, {
+          appString: content,
+          initialState: serialize(state)
+        })
+        res.send(html)
       })
     }).catch(err => {
       console.error('开发环境获取模板后失败:', err)
