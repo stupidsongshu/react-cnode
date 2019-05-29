@@ -10,8 +10,6 @@ const serialize = require('serialize-javascript')
 
 const serverConfig = require('../../build/webpack.config.server')
 
-let Module = module.constructor
-
 /**
  * 开发环境是通过 webpack-dev-server 启动，编译后的数据都在内存中
  */
@@ -29,6 +27,22 @@ const getTemplate = () => {
         reject(err)
       })
   })
+}
+
+// const Module = module.constructor
+const NativeModule = require('module')
+const vm = require('vm')
+
+const getModuleFromString = (bundle, filename) => {
+  const m = { exports: {} }
+  const wrapper = NativeModule.wrap(bundle)
+  const script = new vm.Script(wrapper, {
+    filename: filename,
+    displayErrors: true
+  })
+  const result = script.runInThisContext()
+  result.call(m.exports, m.exports, require, m)
+  return m
 }
 
 // 开发环境使用 memory-fs 提高效率
@@ -99,16 +113,17 @@ compiler.watch({}, (err, stats) => {
   )
   console.log('bundlePath------:', bundlePath)
   // readFileSync 默认返回 buffer， 加上第二个参数 utf-8 返回字符串
-  const serverBundleStr = mfs.readFileSync(bundlePath, 'utf-8')
-  // console.log('serverBundleStr---------', serverBundleStr)
+  const bundle = mfs.readFileSync(bundlePath, 'utf-8')
+  // console.log('bundle---------', bundle)
+
   // 从server-entry.js里面读出的是js字符串，以下为处理成可执行代码的hack方法
-  const m = new Module()
-  // console.log('m1---------------', m)
-  m._compile(serverBundleStr, serverConfig.output.filename)
-  // console.log('m2----------------', m)
+  // const m = new Module()
+  // m._compile(bundle, serverConfig.output.filename)
+
+  const m = getModuleFromString(bundle, serverConfig.output.filename)
+
   serverBundle = m.exports.default
   createStoreMap = m.exports.createStoreMap
-  // console.log('serverBundle----:', serverBundle)
 })
 
 const getStoreState = (stores) => {
@@ -134,8 +149,10 @@ module.exports = (app) => {
       const stores = createStoreMap()
       const routerContext = {}
       const app = serverBundle(stores, routerContext, req.url)
+      console.log('app123456789:', app)
 
       bootstrapper(app).then(() => {
+        console.log('app987654321:', app)
         const content = ReactDOMServer.renderToString(app)
         console.log('content----:', content)
 
@@ -152,11 +169,18 @@ module.exports = (app) => {
 
         // res.send(template.replace('<!-- app -->', content))
 
+        console.log({
+          appString: content,
+          initialState: serialize(state)
+        })
+
         const html = ejs.render(template, {
           appString: content,
           initialState: serialize(state)
         })
         res.send(html)
+      }).catch(err => {
+        console.error('bootstrapper error:', err)
       })
     }).catch(err => {
       console.error('开发环境获取模板后失败:', err)

@@ -11,6 +11,7 @@ const config = merge(baseConfig, {
     filename: 'server-entry.js',
     libraryTarget: 'commonjs2'
   },
+  externals: Object.keys(require('../package.json').dependencies)
 })
 
 module.exports = config

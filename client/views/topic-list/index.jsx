@@ -5,11 +5,11 @@ import AppState from '../../store/app-state'
 
 @inject('appState') @observer
 class TopicList extends React.Component {
-  componentDidMount() {
-    setInterval(() => {
-      this.props.appState.add()
-    }, 1000)
-  }
+  // componentDidMount() {
+  //   setInterval(() => {
+  //     this.props.appState.add()
+  //   }, 1000)
+  // }
 
   handleChange = (e) => {
     // this.props.appState.name = e.target.value
@@ -17,11 +17,15 @@ class TopicList extends React.Component {
   }
 
   bootstrap() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.props.appState.count = 3
-        resolve(true)
-      }, 1000);
+    return new Promise((resolve, reject) => {
+      try {
+        setTimeout(() => {
+          this.props.appState.count = 3
+          resolve(true)
+        }, 1000);
+      } catch (error) {
+        reject(error)
+      }
     })
   }
 
