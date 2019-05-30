@@ -4,7 +4,7 @@ const path = require('path')
 const MemoryFS = require('memory-fs')
 const ReactDOMServer = require('react-dom/server')
 const proxy = require('http-proxy-middleware')
-const bootstrapper = require('react-async-bootstrapper')
+const asyncBootstrapper = require('react-async-bootstrapper')
 const ejs = require('ejs')
 const serialize = require('serialize-javascript')
 
@@ -151,17 +151,18 @@ module.exports = (app) => {
       const app = serverBundle(stores, routerContext, req.url)
       console.log('app123456789:', app)
 
-      bootstrapper(app).then(() => {
-        console.log('app987654321:', app)
-        const content = ReactDOMServer.renderToString(app)
-        console.log('content----:', content)
-
+      asyncBootstrapper(app).then(() => {
         // 服务端渲染处理重定向
         if (routerContext.url) {
           res.status(302).setHeader('Location', routerContext.url)
           res.end()
           return
         }
+
+        console.log('app987654321:', app)
+        // bug 这里报错了
+        const content = ReactDOMServer.renderToString(app)
+        console.log('content----:', content)
 
         const state = getStoreState(stores)
 
@@ -180,7 +181,7 @@ module.exports = (app) => {
         })
         res.send(html)
       }).catch(err => {
-        console.error('bootstrapper error:', err)
+        console.error('bootstrapper error*****:', err)
       })
     }).catch(err => {
       console.error('开发环境获取模板后失败:', err)
