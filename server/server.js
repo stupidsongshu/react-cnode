@@ -1,10 +1,11 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
-const ReactSSR = require('react-dom/server')
+// const ReactSSR = require('react-dom/server')
 const favicon = require('serve-favicon')
 const bodyParser = require('body-parser')
 const session = require('express-session')
+const serverRender = require('./util/server-render')
 
 const isDev = process.env.NODE_ENV === 'development'
 console.log('server isDev:', isDev)
@@ -35,20 +36,30 @@ app.use('/api', require('./util/proxy'))
 app.use(favicon(path.join(__dirname, '../favicon.ico')))
 
 if (!isDev) {
-  const serverEntry = require('../dist/server-entry.js').default
-  const template = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf-8')
+  // const serverEntry = require('../dist/server-entry.js').default
+  // const template = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf-8')
+
+  const serverEntry = require('../dist/server-entry.js')
+  const template = fs.readFileSync(path.join(__dirname, '../dist/server.template.ejs'), 'utf-8')
 
   app.use('/public', express.static(path.join(__dirname, '../dist')))
-  app.get('*', (req, res) => {
-    const appString = ReactSSR.renderToString(serverEntry)
-    const templateReplace = template.replace('<!-- app -->', appString)
-    res.send(templateReplace)
+  app.get('*', (req, res, next) => {
+    // const appString = ReactSSR.renderToString(serverEntry)
+    // const templateReplace = template.replace('<!-- app -->', appString)
+    // res.send(templateReplace)
+    serverRender(serverEntry, template, req, res).catch(next)
   })
 } else {
   const devStatic = require('./util/dev-static')
   // 模板html、bundle 都在内存，而不在磁盘上
   devStatic(app)
 }
+
+// express 全局错误处理
+app.use((error, req, res, next) => {
+  console.log('全局错误处理------', error)
+  res.status(500).send(error.toString())
+})
 
 app.listen(9999, function() {
   console.log('server is listening on 9999')
