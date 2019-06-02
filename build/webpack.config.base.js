@@ -3,7 +3,7 @@ const path = require('path')
 module.exports = {
   output: {
     path: path.join(__dirname, '../dist'),
-    // 将 publicPath 设为 /public/ (注意最后要加上斜线)是为了方便后面服务端渲染进行判断返回静态资源
+    // 将 publicPath 设为 /public/ (注意最后要加上斜线)是为了方便后面服务端渲染区分URL是静态资源还是API请求
     publicPath: '/public/'
   },
   resolve: {

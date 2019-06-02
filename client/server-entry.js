@@ -17,6 +17,4 @@ export default (stores, routerContext, url) => (
   </Provider>
 )
 
-export {
-  createStoreMap,
-}
+export { createStoreMap }

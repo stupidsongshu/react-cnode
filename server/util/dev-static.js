@@ -4,9 +4,10 @@ const path = require('path')
 const MemoryFS = require('memory-fs')
 const ReactDOMServer = require('react-dom/server')
 const proxy = require('http-proxy-middleware')
-const asyncBootstrapper = require('react-async-bootstrapper')
+const asyncBootstrapper = require('react-async-bootstrapper').default
 const ejs = require('ejs')
 const serialize = require('serialize-javascript')
+const Helmet = require('react-helmet').default
 
 const serverConfig = require('../../build/webpack.config.server')
 
@@ -33,6 +34,7 @@ const getTemplate = () => {
 const NativeModule = require('module')
 const vm = require('vm')
 
+// (function(exports, require, module, filename, __dirname) { // ...bundle code })
 const getModuleFromString = (bundle, filename) => {
   const m = { exports: {} }
   const wrapper = NativeModule.wrap(bundle)
@@ -46,7 +48,7 @@ const getModuleFromString = (bundle, filename) => {
 }
 
 // 开发环境使用 memory-fs 提高效率
-const mfs = new MemoryFS
+const mfs = new MemoryFS()
 
 /**
  * 导入的 webpack 函数需要传入一个 webpack 配置对象，
@@ -105,7 +107,7 @@ compiler.watch({}, (err, stats) => {
 
   // console.log('compiler.outputFileSystem---', compiler.outputFileSystem.data.Users.squirrel.repositories.react['react-cnode'])
 
-  // 疑问：为什么这里不用加上 serverConfig.output.publicPath
+  // TODO 疑问：为什么这里不用加上 serverConfig.output.publicPath
   const bundlePath = path.join(
     serverConfig.output.path,
     // serverConfig.output.publicPath,
@@ -145,30 +147,33 @@ module.exports = (app) => {
     // }
 
     getTemplate().then(template => {
-      console.log('开发环境获取模板成功:', template)
+      console.log('开发环境获取模板成功2')
+      // console.log('开发环境获取模板成功:', template)
       const stores = createStoreMap()
       const routerContext = {}
       const app = serverBundle(stores, routerContext, req.url)
-      console.log('app123456789:', app)
+      // console.log('app123456789:', app)
 
+      // TODO 注意坑：react-async-bootstrapper版本问题，1.1.2可以，2.1.1版本有问题
       asyncBootstrapper(app).then(() => {
-        // 服务端渲染处理重定向
-        if (routerContext.url) {
-          res.status(302).setHeader('Location', routerContext.url)
-          res.end()
-          return
-        }
+        /**
+         * 当路由配置有Redirect的时候，react-router会在routerContext加上url属性，
+         * 服务端渲染应检查此属性是否存在，如存在，server端直接跳转。
+         */
+        // if (routerContext.url) {
+        //   res.status(302).setHeader('Location', routerContext.url)
+        //   res.end()
+        //   return
+        // }
 
-        console.log('app987654321:', app)
-        // bug 这里报错了
         const content = ReactDOMServer.renderToString(app)
-        console.log('content----:', content)
+        // console.log('content----:', content)
+        // res.send(template.replace('<!-- app -->', content))
 
         const state = getStoreState(stores)
 
-        console.log(stores.appState.count)
-
-        // res.send(template.replace('<!-- app -->', content))
+        const helmet = Helmet.rewind()
+        // console.log(helmet)
 
         console.log({
           appString: content,
@@ -177,11 +182,15 @@ module.exports = (app) => {
 
         const html = ejs.render(template, {
           appString: content,
-          initialState: serialize(state)
+          initialState: serialize(state),
+          meta: helmet.meta.toString(),
+          title: helmet.title.toString(),
+          link: helmet.link.toString(),
+          style: helmet.style.toString(),
         })
         res.send(html)
       }).catch(err => {
-        console.error('bootstrapper error*****:', err)
+        console.error('bootstrapper出错啦------:', err)
       })
     }).catch(err => {
       console.error('开发环境获取模板后失败:', err)

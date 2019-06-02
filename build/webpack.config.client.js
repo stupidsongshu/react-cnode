@@ -8,6 +8,7 @@ const isDev = process.env.NODE_ENV === 'development'
 console.log('isDev************', isDev)
 
 const config = merge(baseConfig, {
+  mode: 'production',
   entry: {
     app: path.join(__dirname, '../client/app.js')
   },
@@ -49,6 +50,7 @@ const config = merge(baseConfig, {
 })
 
 if (isDev) {
+  config.mode = 'development'
   config.entry = {
     app: [
       'react-hot-loader/patch',

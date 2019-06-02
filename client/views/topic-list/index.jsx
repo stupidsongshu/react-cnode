@@ -1,6 +1,7 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
 import PropTypes from 'prop-types'
+import Helmet from 'react-helmet'
 import AppState from '../../store/app-state'
 
 @inject('appState') @observer
@@ -16,7 +17,8 @@ class TopicList extends React.Component {
     this.props.appState.changeName(e.target.value)
   }
 
-  bootstrap() {
+  asyncBootstrap() {
+    console.log('客户端调用 asyncBootstrap------') // eslint-disable-line
     return new Promise((resolve, reject) => {
       try {
         setTimeout(() => {
@@ -32,6 +34,10 @@ class TopicList extends React.Component {
   render() {
     return (
       <div>
+        <Helmet>
+          <title>Topic List</title>
+          <meta name="description" content="this is description" />
+        </Helmet>
         <input type="text" onChange={this.handleChange} />
         {this.props.appState.msg}
       </div>
