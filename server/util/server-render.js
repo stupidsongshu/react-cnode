@@ -4,18 +4,9 @@ const ejs = require('ejs')
 const serialize = require('serialize-javascript')
 const Helmet = require('react-helmet').default
 
-const SheetsRegistery = require('react-jss').SheetsRegistry
-const create = require('jss').create
-const preset = require('jss-preset-default').default
 const createMuiTheme = require('@material-ui/core/styles').createMuiTheme
-// const createGenerateClassName = require('@material-ui/core/styles/createGenerateClassName').default
-const createGenerateClassName = require('@material-ui/styles/createGenerateClassName').default
-// const createGenerateClassName = require('@material-ui/core/styles').createGenerateClassName
+const ServerStyleSheets = require('@material-ui/styles/ServerStyleSheets').default
 const colors = require('@material-ui/core/colors')
-
-console.log('createGenerateClassName------')
-console.log(createGenerateClassName)
-console.log('createGenerateClassName------')
 
 const getStoreState = (stores) => {
   return Object.keys(stores).reduce((result, storeName) => {
@@ -29,11 +20,8 @@ module.exports = (bundle, template, req, res) => {
     const createApp = bundle.default
     const createStoreMap = bundle.createStoreMap
 
-    const sheetsRegistery = new SheetsRegistery()
-    const jss = create(preset())
-    const generateClassName = createGenerateClassName()
-    console.log('generateClassName------', generateClassName)
-    jss.options.createGenerateClassName = generateClassName
+    const sheets = new ServerStyleSheets()
+
     const theme = createMuiTheme({
       palette: {
         primary: colors.lightBlue,
@@ -45,7 +33,7 @@ module.exports = (bundle, template, req, res) => {
     const routerContext = {}
     const stores = createStoreMap()
 
-    const app = createApp(stores, routerContext, sheetsRegistery, jss, theme, req.url)
+    const app = createApp(stores, routerContext, theme, req.url)
     // console.log('app123456789:', app)
 
     // TODO 注意坑：react-async-bootstrapper版本问题，1.1.2可以，2.1.1版本有问题
@@ -60,7 +48,9 @@ module.exports = (bundle, template, req, res) => {
         return
       }
 
-      const content = ReactDOMServer.renderToString(app)
+      const content = ReactDOMServer.renderToString(
+        sheets.collect(app)
+      )
       const state = getStoreState(stores)
       // console.log('content----:', content)
       // res.send(template.replace('<!-- app -->', content))
@@ -80,7 +70,7 @@ module.exports = (bundle, template, req, res) => {
         title: helmet.title.toString(),
         link: helmet.link.toString(),
         style: helmet.style.toString(),
-        materialCss: sheetsRegistery.toString(),
+        materialCss: sheets.toString(),
       })
       res.send(html)
 
