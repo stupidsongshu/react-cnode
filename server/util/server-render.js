@@ -20,8 +20,6 @@ module.exports = (bundle, template, req, res) => {
     const createApp = bundle.default
     const createStoreMap = bundle.createStoreMap
 
-    const sheets = new ServerStyleSheets()
-
     const theme = createMuiTheme({
       palette: {
         primary: colors.lightBlue,
@@ -29,6 +27,7 @@ module.exports = (bundle, template, req, res) => {
         type: 'light'
       }
     })
+    const sheets = new ServerStyleSheets()
 
     const routerContext = {}
     const stores = createStoreMap()
@@ -52,16 +51,10 @@ module.exports = (bundle, template, req, res) => {
         sheets.collect(app)
       )
       const state = getStoreState(stores)
-      // console.log('content----:', content)
       // res.send(template.replace('<!-- app -->', content))
       // 注意顺序：helmet需在renderToString之后
       const helmet = Helmet.rewind()
       // console.log(helmet)
-
-      // console.log({
-      //   appString: content,
-      //   initialState: serialize(state)
-      // })
 
       const html = ejs.render(template, {
         appString: content,
