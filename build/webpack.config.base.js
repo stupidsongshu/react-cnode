@@ -7,7 +7,11 @@ module.exports = {
     publicPath: '/public/'
   },
   resolve: {
-    extensions: ['.js', '.jsx']
+    extensions: ['.js', '.jsx'],
+    alias: {
+      // React-Hot-Loader: react-🔥-dom patch is not detected. React 16.6+ features may not work.
+      'react-dom': '@hot-loader/react-dom'
+    }
   },
   module: {
     rules: [
