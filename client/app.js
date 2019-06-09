@@ -1,21 +1,19 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'mobx-react'
 // import { AppContainer } from 'react-hot-loader' // eslint-disable-line
 // import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
 import { ThemeProvider } from '@material-ui/styles'
 import { createMuiTheme } from '@material-ui/core/styles'
 import { lightBlue, pink } from '@material-ui/core/colors'
-import AppState from './store/app-state'
+import { AppState, TopicStore } from './store/store'
 import App from './views/App'
 
 const root = document.getElementById('root')
 
 // ReactDOM.render(<App />, root)
 // ReactDOM.hydrate(<App />, root)
-
-const initialState = window.__INITIAL__STATE__ || {} // eslint-disable-line
 
 const theme = createMuiTheme({
   palette: {
@@ -45,13 +43,17 @@ const createApp = (TheApp) => {
 
 const CreateApp = createApp(App)
 
+const initialState = window.__INITIAL__STATE__ || {} // eslint-disable-line
+const appState = new AppState(initialState.appState)
+const topicStore = new TopicStore(initialState.topicStore)
+
 ReactDOM.hydrate(
-  <Provider appState={new AppState(initialState.appState)}>
-    <Router>
+  <Provider appState={appState} topicStore={topicStore}>
+    <BrowserRouter>
       <ThemeProvider theme={theme}>
         <CreateApp />
       </ThemeProvider>
-    </Router>
+    </BrowserRouter>
   </Provider>,
   root,
 )

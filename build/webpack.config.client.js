@@ -51,6 +51,7 @@ const config = merge(baseConfig, {
 
 if (isDev) {
   config.mode = 'development'
+  config.devtool = '#@cheap-module-eval-source-map'
   config.entry = {
     app: [
       'react-hot-loader/patch',
@@ -62,7 +63,7 @@ if (isDev) {
     host: '0.0.0.0', // 默认 localhost
     port: '8888', // 默认 8080
     // 注意坑：如果磁盘上有编译后的 dist 目录, devServer 会优先使用磁盘上而导致问题，所以开发环境下需要删除 dist 目录
-    contentBase: path.join(__dirname, '../dist'),
+    // contentBase: path.join(__dirname, '../dist'),
     hot: true, // 启用 webpack 的模块热替换特性
     overlay: {
       // warnings: true,
