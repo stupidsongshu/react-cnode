@@ -27,6 +27,7 @@ class TopicList extends React.Component {
     // setInterval(() => {
     //   this.props.appState.add()
     // }, 1000)
+    console.log(this.props)
 
     const queryTab = this.getQueryTab()
     this.props.topicStore.fetchTopics(queryTab)
@@ -57,14 +58,14 @@ class TopicList extends React.Component {
     //   search: `?tab=${value}`,
     // })
     this.props.history.push({
-      pathname: '/list',
+      pathname: '/index',
       search: `?tab=${value}`,
     })
     // this.props.history.push(`/list?tab=${value}`)
   }
 
-  detail = (e) => {
-    console.log(e) // eslint-disable-line
+  detail = (topic) => {
+    this.props.history.push(`/detail/${topic.id}`)
   }
 
   asyncBootstrap() {
@@ -110,7 +111,7 @@ class TopicList extends React.Component {
               <TopicListItem
                 key={topic.id}
                 topic={topic}
-                onClick={this.detail}
+                onClick={() => this.detail(topic)}
               />
             ))
           }

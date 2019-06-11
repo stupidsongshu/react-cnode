@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import cx from 'classnames'
+import dateformat from 'dateformat'
 
 import { withStyles } from '@material-ui/styles'
 import ListItem from '@material-ui/core/ListItem'
@@ -35,7 +36,7 @@ const Secondary = ({ topic, classes }) => (
     </span>
     <span>
       创建时间：
-      {topic.create_at}
+      {dateformat(topic.create_at, 'yyyy年mm月dd日 hh:MM:ss')}
     </span>
   </span>
 )

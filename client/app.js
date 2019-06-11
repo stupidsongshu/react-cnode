@@ -47,7 +47,7 @@ const initialState = window.__INITIAL__STATE__ || {} // eslint-disable-line
 const appState = new AppState(initialState.appState)
 const topicStore = new TopicStore(initialState.topicStore)
 
-ReactDOM.hydrate(
+ReactDOM.render(
   <Provider appState={appState} topicStore={topicStore}>
     <BrowserRouter>
       <ThemeProvider theme={theme}>

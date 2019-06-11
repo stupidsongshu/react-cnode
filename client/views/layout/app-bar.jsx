@@ -1,27 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { withStyles } from '@material-ui/styles'
-// import { makeStyles } from '@material-ui/styles'
+import { observer, inject } from 'mobx-react'
 
 // import { AppBar, Toolbar, Button, IconButton } from '@material-ui/core'
+import { withStyles } from '@material-ui/styles'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
-
-// const useStyles = makeStyles(theme => ({
-//   root: {
-//     flexGrow: 1,
-//   },
-//   menuButton: {
-//     marginRight: theme.spacing(2),
-//   },
-//   title: {
-//     flexGrow: 1,
-//   },
-// }))
 
 const styles = {
   root: {
@@ -35,9 +23,22 @@ const styles = {
   },
 }
 
+@inject(stores => ({
+  appState: stores.appState,
+})) @observer
 class MainAppBar extends React.Component {
-  menuIconClick = () => {
+  static contextTypes = {
+    router: PropTypes.object,
+  }
 
+  componentDidMount() {
+    console.log(this.props)
+    console.log(this.props.history) // undefined
+    console.log(this.context) // undefined
+  }
+
+  menuIconClick = () => {
+    // this.props.history.push('/index')
   }
 
   createButtonClick = () => {
@@ -45,11 +46,16 @@ class MainAppBar extends React.Component {
   }
 
   loginButtonClick = () => {
-
+    // if (this.props.appState.user.isLogin) {
+    //   this.props.history.push('/user/info')
+    // } else {
+    //   this.props.history.push('/user/login')
+    // }
   }
 
   render() {
     const { classes } = this.props
+    const { user } = this.props.appState
     return (
       <div className={classes.root}>
         <AppBar position="static">
@@ -61,7 +67,9 @@ class MainAppBar extends React.Component {
               CNode
             </Typography>
             <Button color="secondary" variant="contained" onClick={this.createButtonClick}>新建话题</Button>
-            <Button color="secondary" onClick={this.loginButtonClick}>登录</Button>
+            <Button color="secondary" onClick={this.loginButtonClick}>
+              {user.isLogin ? user.info.loginname : '登录'}
+            </Button>
           </Toolbar>
         </AppBar>
       </div>
@@ -69,8 +77,13 @@ class MainAppBar extends React.Component {
   }
 }
 
+MainAppBar.wrappedComponent.propTypes = {
+  appState: PropTypes.object.isRequired,
+}
+
 MainAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
+  history: PropTypes.object,
 }
 
 export default withStyles(styles)(MainAppBar)
