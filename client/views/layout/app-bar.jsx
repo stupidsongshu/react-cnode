@@ -1,4 +1,5 @@
 import React from 'react'
+import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { observer, inject } from 'mobx-react'
 
@@ -24,21 +25,16 @@ const styles = {
 }
 
 @inject(stores => ({
-  appState: stores.appState,
+  user: stores.appState.user,
 })) @observer
 class MainAppBar extends React.Component {
-  static contextTypes = {
-    router: PropTypes.object,
-  }
-
-  componentDidMount() {
-    console.log(this.props)
-    console.log(this.props.history) // undefined
-    console.log(this.context) // undefined
+  static propTypes = {
+    // location: PropTypes.object.isRequired,
+    history: PropTypes.object.isRequired,
   }
 
   menuIconClick = () => {
-    // this.props.history.push('/index')
+    this.props.history.push('/index')
   }
 
   createButtonClick = () => {
@@ -46,16 +42,15 @@ class MainAppBar extends React.Component {
   }
 
   loginButtonClick = () => {
-    // if (this.props.appState.user.isLogin) {
-    //   this.props.history.push('/user/info')
-    // } else {
-    //   this.props.history.push('/user/login')
-    // }
+    if (this.props.user.isLogin) {
+      this.props.history.push('/user/info')
+    } else {
+      this.props.history.push('/user/login')
+    }
   }
 
   render() {
-    const { classes } = this.props
-    const { user } = this.props.appState
+    const { classes, user } = this.props
     return (
       <div className={classes.root}>
         <AppBar position="static">
@@ -67,7 +62,7 @@ class MainAppBar extends React.Component {
               CNode
             </Typography>
             <Button color="secondary" variant="contained" onClick={this.createButtonClick}>新建话题</Button>
-            <Button color="secondary" onClick={this.loginButtonClick}>
+            <Button color="secondary" variant="outlined" onClick={this.loginButtonClick}>
               {user.isLogin ? user.info.loginname : '登录'}
             </Button>
           </Toolbar>
@@ -78,12 +73,11 @@ class MainAppBar extends React.Component {
 }
 
 MainAppBar.wrappedComponent.propTypes = {
-  appState: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
 }
 
 MainAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
-  history: PropTypes.object,
 }
 
-export default withStyles(styles)(MainAppBar)
+export default withStyles(styles)(withRouter(MainAppBar))

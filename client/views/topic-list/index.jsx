@@ -27,7 +27,7 @@ class TopicList extends React.Component {
     // setInterval(() => {
     //   this.props.appState.add()
     // }, 1000)
-    console.log(this.props)
+    console.log('topic-list:', this.props)
 
     const queryTab = this.getQueryTab()
     this.props.topicStore.fetchTopics(queryTab)

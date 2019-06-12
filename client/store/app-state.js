@@ -22,10 +22,10 @@ export default class AppState {
         }).then((res) => {
           if (res.success) {
             this.user.isLogin = true
-            this.user.info = res.data.data
+            this.user.info = res.data
             resolve()
           } else {
-            reject()
+            reject(res.data)
           }
         }).catch(reject)
       }
