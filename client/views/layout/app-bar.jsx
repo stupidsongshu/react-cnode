@@ -63,7 +63,8 @@ class MainAppBar extends React.Component {
             </Typography>
             <Button color="secondary" variant="contained" onClick={this.createButtonClick}>新建话题</Button>
             <Button color="secondary" variant="outlined" onClick={this.loginButtonClick}>
-              {user.isLogin ? user.info.loginname : '登录'}
+              {/* TODO bug: 登陆后提示user.info.loginname为undefined导致Button props校验报错 */}
+              {user.isLogin ? (user.info.loginname || '') : '登录'}
             </Button>
           </Toolbar>
         </AppBar>

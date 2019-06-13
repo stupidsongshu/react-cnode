@@ -20,7 +20,7 @@ export default () => ({
     marginBottom: 20,
   },
   userName: {
-    color: '#fff',
+    color: '#999',
     zIndex: '1',
   },
   bg: {

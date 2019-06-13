@@ -22,6 +22,12 @@ class UserLogin extends React.Component {
     }
   }
 
+  componentWillMount() {
+    if (this.props.user.isLogin) {
+      this.props.history.replace('/user/info')
+    }
+  }
+
   handleInput = (e) => {
     this.setState({
       accessToken: e.target.value.trim(),
@@ -39,7 +45,9 @@ class UserLogin extends React.Component {
     this.setState({
       helperText: '',
     })
-    this.props.appState.login(accessToken).catch((err) => {
+    this.props.appState.login(accessToken).then(() => {
+      this.props.history.replace('/user/info')
+    }).catch((err) => {
       console.log(err)
       this.setState({
         helperText: err.data.error_msg,
@@ -77,10 +85,13 @@ class UserLogin extends React.Component {
   }
 }
 
+UserLogin.propTypes = {
+  classes: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired,
+}
 UserLogin.wrappedComponent.propTypes = {
   appState: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired,
 }
 
 export default withStyles(loginStyles)(UserLogin)

@@ -35,10 +35,13 @@ module.exports = {
         ]
       },
       {
-        test: /.(png|jpg|jpeg|gif)$/,
+        test: /.(png|jpg|jpeg|gif|svg)$/,
         use: [
           {
-            loader: 'file-loader'
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]?[hash}'
+            }
           }
         ]
       }
