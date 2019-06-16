@@ -5,7 +5,9 @@ const merge = require('webpack-merge')
 const baseConfig = require('./webpack.config.base')
 
 const isDev = process.env.NODE_ENV === 'development'
+console.log('process.env.NODE_ENV************', process.env.NODE_ENV)
 console.log('isDev************', isDev)
+console.log('isPro************', process.env.NODE_ENV === 'production')
 
 const config = merge(baseConfig, {
   mode: 'production',
@@ -15,29 +17,17 @@ const config = merge(baseConfig, {
   output: {
     filename: '[name].[hash].js'
   },
-  // module: {
-  //   rules: [
-  //     {
-  //       test: /.(js|jsx)$/,
-  //       loader: 'eslint-loader',
-  //       enforce: 'pre',
-  //       exclude: [
-  //         path.resolve(__dirname, '../node_modules')
-  //       ]
-  //     },
-  //     {
-  //       test: /.jsx$/,
-  //       loader: 'babel-loader'
-  //     },
-  //     {
-  //       test: /.js$/,
-  //       loader: 'babel-loader',
-  //       exclude: [
-  //         path.join(__dirname, '../node_modules')
-  //       ]
-  //     }
-  //   ]
-  // },
+  module: {
+    rules: [
+      {
+        test: /.css$/,
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
+      }
+    ]
+  },
   plugins: [
     new HTMLWebpackPlugin({
       template: path.join(__dirname, '../client/template.html')
@@ -81,6 +71,25 @@ if (isDev) {
   }
   // config.plugins.push(
   //   new webpack.HotModuleReplacementPlugin()
+  // )
+} else {
+  config.entry = {
+    app: path.join(__dirname, '../client/app.js'),
+    vendor: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'mobx',
+      'mobx-react',
+      'axios',
+      'query-string',
+      'dateformat',
+      'marked'
+    ]
+  }
+  config.output.filename = '[name].[chunkhash].js'
+  // config.plugins.push(
+  //   new webpack.optimize.UglifyJsPlugin()
   // )
 }
 

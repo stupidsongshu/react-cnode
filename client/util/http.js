@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const baseUrl = process.env.API_BASE || ''
 
-const parseUrl = (url, params = {}) => {
+const stringifyUrl = (url, params = {}) => {
   const str = Object.keys(params).reduce((result, key) => {
     result += `${key}=${params[key]}&`
     return result
@@ -11,7 +11,7 @@ const parseUrl = (url, params = {}) => {
 }
 
 export const get = (url, params) => new Promise((resolve, reject) => {
-  axios.get(parseUrl(url, params)).then((res) => {
+  axios.get(stringifyUrl(url, params)).then((res) => {
     const { data } = res
     if (data && data.success === true) {
       resolve(data)
@@ -19,20 +19,10 @@ export const get = (url, params) => new Promise((resolve, reject) => {
       reject(data)
     }
   }).catch(reject)
-  // .catch((err) => {
-  //   if (err.response) {
-  //     reject(err.response.data)
-  //   } else {
-  //     reject({
-  //       success: false,
-  //       errMsg: err.message,
-  //     })
-  //   }
-  // })
 })
 
 export const post = (url, params, datas) => new Promise((resolve, reject) => {
-  axios.post(parseUrl(url, params), datas).then((res) => {
+  axios.post(stringifyUrl(url, params), datas).then((res) => {
     const { data } = res
     if (data && data.success === true) {
       resolve(data)

@@ -3,29 +3,9 @@ const axios = require('axios')
 const path = require('path')
 const MemoryFS = require('memory-fs')
 const proxy = require('http-proxy-middleware')
-// const ReactDOMServer = require('react-dom/server')
-// const asyncBootstrapper = require('react-async-bootstrapper').default
-// const ejs = require('ejs')
-// const serialize = require('serialize-javascript')
-// const Helmet = require('react-helmet').default
 
 const serverConfig = require('../../build/webpack.config.server')
 const serverRender = require('./server-render')
-
-/**
- * 开发环境是通过 webpack-dev-server 启动，编译后的数据都在内存中
- */
-const getTemplate = () => {
-  return new Promise((resolve, reject) => {
-    // const templateUrl = 'http://127.0.0.1:8888/public/index.html'
-    const templateUrl = 'http://127.0.0.1:8888/public/server.template.ejs'
-    axios.get(templateUrl)
-      .then(res => {
-        resolve(res.data)
-      })
-      .catch(reject)
-  })
-}
 
 // const Module = module.constructor
 const NativeModule = require('module')
@@ -91,8 +71,8 @@ compiler.watch({}, (err, stats) => {
 
   // 以 JSON 对象形式返回编译信息
   stats = stats.toJson()
-  stats.errors.forEach(error => console.error('stats error:', error))
-  stats.warnings.forEach(warn => console.warn('stats warn:', warn))
+  stats.errors.forEach(error => console.error('stats error------:', error))
+  stats.warnings.forEach(warn => console.warn('stats warn------:', warn))
 
   // const info = stats.toJson();
   // if (stats.hasErrors()) {
@@ -118,21 +98,27 @@ compiler.watch({}, (err, stats) => {
   // 从server-entry.js里面读出的是js字符串，以下为处理成可执行代码的hack方法
   // const m = new Module()
   // m._compile(bundle, serverConfig.output.filename)
-
-  const m = getModuleFromString(bundle, serverConfig.output.filename)
-
   // serverBundle = m.exports.default
   // createStoreMap = m.exports.createStoreMap
 
+  const m = getModuleFromString(bundle, serverConfig.output.filename)
   serverBundle = m.exports
 })
 
-// const getStoreState = (stores) => {
-//   return Object.keys(stores).reduce((result, storeName) => {
-//     result[storeName] = stores[storeName].toJson()
-//     return result
-//   }, {})
-// }
+/**
+ * 开发环境是通过 webpack-dev-server 启动，编译后的数据都在内存中
+ */
+const getTemplate = () => {
+  return new Promise((resolve, reject) => {
+    // const templateUrl = 'http://127.0.0.1:8888/public/index.html'
+    const templateUrl = 'http://127.0.0.1:8888/public/server.template.ejs'
+    axios.get(templateUrl)
+      .then(res => {
+        resolve(res.data)
+      })
+      .catch(reject)
+  })
+}
 
 module.exports = (app) => {
   // 静态资源代理
@@ -146,51 +132,6 @@ module.exports = (app) => {
     }
 
     getTemplate().then(template => {
-      // console.log('开发环境获取模板成功:', template)
-      // const stores = createStoreMap()
-      // const routerContext = {}
-      // const app = serverBundle(stores, routerContext, req.url)
-      // // console.log('app123456789:', app)
-
-      // // TODO 注意坑：react-async-bootstrapper版本问题，1.1.2可以，2.1.1版本有问题
-      // asyncBootstrapper(app).then(() => {
-      //   /**
-      //    * 当路由配置有Redirect的时候，react-router会在routerContext加上url属性，
-      //    * 服务端渲染应检查此属性是否存在，如存在，server端直接跳转。
-      //    */
-      //   // if (routerContext.url) {
-      //   //   res.status(302).setHeader('Location', routerContext.url)
-      //   //   res.end()
-      //   //   return
-      //   // }
-
-      //   const content = ReactDOMServer.renderToString(app)
-      //   // console.log('content----:', content)
-      //   // res.send(template.replace('<!-- app -->', content))
-
-      //   const state = getStoreState(stores)
-
-      //   const helmet = Helmet.rewind()
-      //   // console.log(helmet)
-
-      //   console.log({
-      //     appString: content,
-      //     initialState: serialize(state)
-      //   })
-
-      //   const html = ejs.render(template, {
-      //     appString: content,
-      //     initialState: serialize(state),
-      //     meta: helmet.meta.toString(),
-      //     title: helmet.title.toString(),
-      //     link: helmet.link.toString(),
-      //     style: helmet.style.toString(),
-      //   })
-      //   res.send(html)
-      // }).catch(err => {
-      //   console.error('bootstrapper出错啦------:', err)
-      // })
-
       return serverRender(serverBundle, template, req, res)
     }).catch(next)
   })

@@ -1,12 +1,14 @@
 import React from 'react'
+import { Redirect } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { observer, inject } from 'mobx-react'
+import querystring from 'query-string'
 
 import { withStyles } from '@material-ui/styles'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 
-import User from './user'
+import UserWrapper from './user'
 import loginStyles from './styles/login-style'
 
 @inject(stores => ({
@@ -19,12 +21,6 @@ class UserLogin extends React.Component {
     this.state = {
       helperText: '',
       accessToken: '18aa79ea-7af3-41f2-a2fc-241c93e888df',
-    }
-  }
-
-  componentWillMount() {
-    if (this.props.user.isLogin) {
-      this.props.history.replace('/user/info')
     }
   }
 
@@ -45,9 +41,7 @@ class UserLogin extends React.Component {
     this.setState({
       helperText: '',
     })
-    this.props.appState.login(accessToken).then(() => {
-      this.props.history.replace('/user/info')
-    }).catch((err) => {
+    this.props.appState.login(accessToken).catch((err) => {
       console.log(err)
       this.setState({
         helperText: err.data.error_msg,
@@ -57,11 +51,14 @@ class UserLogin extends React.Component {
 
   render() {
     const { user, classes } = this.props
+    const search = querystring.parse(this.props.location.search)
+
     if (user.isLogin) {
-      return <div>已登录</div>
+      return <Redirect to={search.redirect || '/user/info'} />
     }
+
     return (
-      <User>
+      <UserWrapper>
         <div className={classes.root}>
           <TextField
             label="请输入Cnode AccessToken1"
@@ -80,14 +77,15 @@ class UserLogin extends React.Component {
             登录
           </Button>
         </div>
-      </User>
+      </UserWrapper>
     )
   }
 }
 
 UserLogin.propTypes = {
   classes: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
+  // history: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired,
 }
 UserLogin.wrappedComponent.propTypes = {
   appState: PropTypes.object.isRequired,

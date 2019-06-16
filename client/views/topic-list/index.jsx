@@ -9,13 +9,13 @@ import Tab from '@material-ui/core/Tab'
 import List from '@material-ui/core/List'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
-import { AppState } from '../../store/store'
+// import { AppState } from '../../store/store'
 import Container from '../layout/container'
 import TopicListItem from './list-item'
 import { tabs } from '../../util/variable-define'
 
 @inject(stores => ({
-  appState: stores.appState,
+  // appState: stores.appState,
   topicStore: stores.topicStore,
 })) @observer
 class TopicList extends React.Component {
@@ -68,18 +68,25 @@ class TopicList extends React.Component {
     this.props.history.push(`/detail/${topic.id}`)
   }
 
+  // asyncBootstrap() {
+  //   console.log('客户端调用 asyncBootstrap------') // eslint-disable-line
+  //   return new Promise((resolve, reject) => {
+  //     try {
+  //       setTimeout(() => {
+  //         this.props.appState.count = 3
+  //         resolve(true)
+  //       }, 1000);
+  //     } catch (error) {
+  //       reject(error)
+  //     }
+  //   })
+  // }
+
   asyncBootstrap() {
-    console.log('客户端调用 asyncBootstrap------') // eslint-disable-line
-    return new Promise((resolve, reject) => {
-      try {
-        setTimeout(() => {
-          this.props.appState.count = 3
-          resolve(true)
-        }, 1000);
-      } catch (error) {
-        reject(error)
-      }
-    })
+    console.log('客户端调用 asyncBootstrap------')
+    const query = this.props.location.search
+    const tab = query.tab || 'all'
+    return this.props.topicStore.fetchTopics(tab).then(() => true).catch(() => false)
   }
 
   render() {
@@ -137,7 +144,7 @@ class TopicList extends React.Component {
 }
 
 TopicList.wrappedComponent.propTypes = {
-  appState: PropTypes.instanceOf(AppState).isRequired,
+  // appState: PropTypes.instanceOf(AppState).isRequired,
   topicStore: PropTypes.object.isRequired,
 }
 

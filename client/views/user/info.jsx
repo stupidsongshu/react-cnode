@@ -31,12 +31,13 @@ const TopicItem = ({ topic, onClick }) => (
 })) @observer
 class UserInfo extends React.Component {
   componentWillMount() {
-    if (!this.props.user.isLogin) {
-      this.props.history.replace('/user/login')
-      return
-    }
-    this.props.appState.getUserDetail()
-    this.props.appState.getUserCollection()
+    // bug: user取值顺序 下面两个接口居然在login接口前面执行
+    // this.props.appState.getUserDetail()
+    // this.props.appState.getUserCollection()
+    setTimeout(() => {
+      this.props.appState.getUserDetail()
+      this.props.appState.getUserCollection()
+    })
   }
 
   gotoDetail = (id) => {

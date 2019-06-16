@@ -28,17 +28,12 @@ const styles = {
   user: stores.appState.user,
 })) @observer
 class MainAppBar extends React.Component {
-  static propTypes = {
-    // location: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired,
-  }
-
   menuIconClick = () => {
     this.props.history.push('/index')
   }
 
   createButtonClick = () => {
-
+    this.props.history.push('/topic/create')
   }
 
   loginButtonClick = () => {
@@ -79,6 +74,7 @@ MainAppBar.wrappedComponent.propTypes = {
 
 MainAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired,
 }
 
 export default withStyles(styles)(withRouter(MainAppBar))

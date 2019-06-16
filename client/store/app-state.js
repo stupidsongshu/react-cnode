@@ -1,12 +1,11 @@
 import {
   observable,
-  // computed,
-  // autorun,
   action,
+  toJS,
 } from 'mobx'
 import { get, post } from '../util/http'
 
-export default class AppState {
+class AppState {
   @observable user = {
     isLogin: false,
     info: {},
@@ -21,6 +20,13 @@ export default class AppState {
     },
   }
 
+  init({ user }) {
+    if (user) {
+      console.log('appState user:', user)
+      this.user = user
+    }
+  }
+
   @action login(accessToken) {
     return new Promise((resolve, reject) => {
       if (this.user.isLogin) {
@@ -32,6 +38,7 @@ export default class AppState {
           if (res.success) {
             this.user.isLogin = true
             this.user.info = res.data
+            console.log('login:', this.user.info.loginname)
             resolve()
           } else {
             reject(res.data)
@@ -42,6 +49,7 @@ export default class AppState {
   }
 
   @action getUserDetail() {
+    console.log('getUserDetail:', this.user.info.loginname)
     this.user.detail.syncing = true
     return new Promise((resolve, reject) => {
       get(`/user/${this.user.info.loginname}`).then((res) => {
@@ -77,4 +85,12 @@ export default class AppState {
       })
     })
   }
+
+  toJson() {
+    return {
+      user: toJS(this.user),
+    }
+  }
 }
+
+export default AppState

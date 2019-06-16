@@ -18,16 +18,16 @@ class User extends React.Component {
     return (
       <Container>
         <div className={classes.avatar}>
-          <div>
+          <div className={classes.bg}>
             {
               user.isLogin
                 ? <Avatar className={classes.avatarImg} src={user.info.avatar_url} />
-                : <Avatar><UserIcon className={classes.avatarImg} /></Avatar>
+                : <Avatar className={classes.avatarImg}><UserIcon /></Avatar>
             }
             <span className={classes.userName}>{user.isLogin ? user.info.loginname : '未登录'}</span>
           </div>
-          {children}
         </div>
+        {children}
       </Container>
     )
   }

@@ -5,7 +5,7 @@ import dateformat from 'dateformat'
 import { withStyles } from '@material-ui/styles'
 import { Avatar } from '@material-ui/core'
 
-import { replyStyle } from './style'
+import { replyStyle } from './styles'
 
 const Reply = ({ reply, classes }) => (
   <div className={classes.root}>

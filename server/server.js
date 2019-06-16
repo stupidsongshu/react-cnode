@@ -1,7 +1,6 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
-// const ReactSSR = require('react-dom/server')
 const favicon = require('serve-favicon')
 const bodyParser = require('body-parser')
 const session = require('express-session')
@@ -19,12 +18,12 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 // Access the session as req.session
 app.use(session({
-  // cookie: {
-  //   maxAge: 10 * 60 * 1000
-  // },
-  maxAge: 10 * 60 * 1000,
+  cookie: {
+    maxAge: 10 * 60 * 1000
+  },
+  // maxAge: 10 * 60 * 1000,
   // The default value is 'connect.sid'.
-  name: 'sid',
+  name: 'reactid',
   resave: false,
   saveUninitialized: false,
   secret: 'react cnode app'
