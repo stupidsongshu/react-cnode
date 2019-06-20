@@ -8,12 +8,22 @@
     "clear": "rimraf dist",
     "lint": "eslint --ext .js --ext .jsx client/",
     "fix": "eslint --fix --ext .js --ext .jsx client/",
+
+    "//dev:client": "开发环境启动client端",
     "dev:client": "cross-env NODE_ENV=development webpack-dev-server --config build/webpack.config.client.js",
+    "//dev:server": "开发环境启动server端",
     "dev:server": "cross-env NODE_ENV=development node server/server.js",
+    "//dev:server:nodemon": "开发环境使用nodemon启动server端",
     "dev:server:nodemon": "nodemon server/server.js",
+
+    "//build:client": "生产环境打包client端",
     "build:client": "cross-env NODE_ENV=production webpack --config build/webpack.config.client.js",
+    "//build:server": "生产环境打包server端",
     "build:server": "cross-env NODE_ENV=production webpack --config build/webpack.config.server.js",
+    "//build": "生产环境打包client和server端",
     "build": "npm run clear && npm run build:client && npm run build:server",
+
+    "//start": "启动服务端生产环境",
     "start": "cross-env NODE_ENV=production node server/server.js"
   },
   "husky": {
