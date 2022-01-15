@@ -47,7 +47,7 @@
     "ejs-compiled-loader": "^1.1.0",
     "express": "^4.17.0",
     "express-session": "^1.16.1",
-    "marked": "^0.6.2",
+    "marked": "^4.0.10",
     "mobx": "^3.6.2",
     "mobx-react": "^4.4.3",
     "prop-types": "^15.7.2",
